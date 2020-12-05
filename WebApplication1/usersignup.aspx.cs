@@ -21,13 +21,16 @@ namespace WebApplication1
         // When the sign up button is clicked
         protected void Button1_Click(object sender, EventArgs e)
         {
-            if (CheckMemberExists())
+            if (Page.IsValid)
             {
-                Response.Write("<script>alert('Member already exists with this Member ID, please try another Member ID');</script>");
-            }
-            else
-            {
-                SignUpNewUser();
+                if (CheckMemberExists())
+                {
+                    Response.Write("<script>alert('Member already exists with this Member ID, please try another Member ID');</script>");
+                }
+                else
+                {
+                    SignUpNewUser();
+                }
             }
         }
 

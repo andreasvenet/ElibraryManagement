@@ -15,7 +15,7 @@ namespace WebApplication1
         string strcon = ConfigurationManager.ConnectionStrings["con"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            GridView1.DataBind();
         }
 
         //go button
@@ -29,7 +29,15 @@ namespace WebApplication1
         {
             if (CheckIfBookExists() && CheckIfMemberExists())
             {
-
+                if (CheckIfIssueEntryExists())
+                {
+                    Response.Write("<script>alert('This member has already taken this book!');</script>");
+                }
+                else
+                {
+                    IssueBook();
+                }
+                
             }
             else
             {
@@ -41,10 +49,57 @@ namespace WebApplication1
         //return button
         protected void Button3_Click(object sender, EventArgs e)
         {
+            if (CheckIfBookExists() && CheckIfMemberExists())
+            {
+                if (CheckIfIssueEntryExists())
+                {
+                    ReturnBook();
+                }
+                else
+                {
+                    Response.Write("<script>alert('This entry does not exist!');</script>");
+                }
 
+            }
+            else
+            {
+                Response.Write("<script>alert('Invalid Book ID or Member ID!');</script>");
+
+            }
         }
 
         //user defined methods
+        void ReturnBook()
+        {
+            try
+            {
+                SqlConnection con = new SqlConnection(strcon);
+                if (con.State == System.Data.ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                SqlCommand cmd = new SqlCommand(@"delete from book_issue_tbl
+                        where book_id='" + TextBox3.Text.Trim() + "' and member_id='" + TextBox4.Text.Trim() + "'", con);
+                int result = cmd.ExecuteNonQuery();
+                
+                if (result > 0)
+                {
+                    cmd = new SqlCommand("update book_master_tbl set current_stock = current_stock+1 where book_id='" + TextBox3.Text.Trim() + "'", con);
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+
+                    Response.Write("<script>alert('Book returned successfully!');</script>");
+                    GridView1.DataBind();
+
+                    con.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Response.Write("<script>alert('" + ex.Message + "');</script>");
+            }
+        }
 
         void IssueBook()
         {
@@ -71,7 +126,7 @@ namespace WebApplication1
                 cmd.ExecuteNonQuery();
 
                 cmd = new SqlCommand("update book_master_tbl set current_stock=current_stock-1 where book_id='"+TextBox3.Text.Trim()+"'", con);
-
+                cmd.ExecuteNonQuery();
 
                 con.Close();
                 Response.Write("<script>alert('Book Issued successfully!');</script>");
@@ -93,7 +148,38 @@ namespace WebApplication1
                 {
                     con.Open();
                 }
-                SqlCommand cmd = new SqlCommand("select * from book_master_tbl where book_id='" + TextBox3.Text.Trim() + "' and current_stock>0'", con);
+                SqlCommand cmd = new SqlCommand("select * from book_master_tbl where book_id='" + TextBox3.Text.Trim() + "' and current_stock>0", con);
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                if (dt.Rows.Count >= 1)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Response.Write("<script>alert('" + ex.Message + "');</script>");
+                return false;
+            }
+        }
+
+        bool CheckIfIssueEntryExists()
+        {
+            try
+            {
+                SqlConnection con = new SqlConnection(strcon);
+                if (con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                SqlCommand cmd = new SqlCommand("select * from book_issue_tbl where member_id='" + TextBox4.Text.Trim() + "' and book_id='"+TextBox3.Text.Trim()+"'", con);
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -145,6 +231,7 @@ namespace WebApplication1
                 return false;
             }
         }
+
         void GetNames()
         {
             try
@@ -189,5 +276,26 @@ namespace WebApplication1
             }
         }
 
+        protected void GridView1_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            try
+            {
+                if (e.Row.RowType == DataControlRowType.DataRow)
+                {
+                    //check
+                    DateTime dt = Convert.ToDateTime(e.Row.Cells[5].Text);
+                    DateTime today = DateTime.Today;
+                    if (today>dt)
+                    {
+                        e.Row.BackColor = System.Drawing.Color.PaleVioletRed;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.Write("<script>alert('"+ex.Message+"');</script>");
+                throw;
+            }
+        }
     }
 }

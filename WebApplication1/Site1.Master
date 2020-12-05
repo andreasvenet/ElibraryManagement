@@ -77,7 +77,7 @@
                     </li>
 
                      <li class="nav-item-active">
-                      <asp:LinkButton class="nav-link" ID="LinkButton7" runat="server" Visible="False"
+                      <asp:LinkButton class="nav-link" ID="LinkButton7" runat="server" Visible="False" OnClick="LinkButton7_Click"
                           >Hello user</asp:LinkButton>
                     </li>
                 </ul>

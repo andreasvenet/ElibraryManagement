@@ -4,5 +4,11 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <h1> This is our content webform</h1>
+    
+        Your name:<br />
+        <asp:TextBox runat="server" id="txtName" />
+    <asp:CustomValidator ID="CustomValidator1" runat="server" ErrorMessage="CustomValidator" OnServerValidate="CustomValidator1_ServerValidate"></asp:CustomValidator>
+        <br /><br />
+        <asp:Button runat="server" id="btnSubmitForm" text="Ok" OnClick="btnSubmitForm_Click" />
+    
 </asp:Content>
