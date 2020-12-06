@@ -20,38 +20,41 @@ namespace WebApplication1
 
         protected void Button1_Click(object sender, EventArgs e)
         {
-            try
+            if (Page.IsValid)
             {
-                SqlConnection con = new SqlConnection(strcon);
-                if (con.State == ConnectionState.Closed)
+                try
                 {
-                    con.Open();
-                }
-                SqlCommand cmd = new SqlCommand("select * from admin_login_tbl where username='" + TextBox1.Text.Trim() + "' and password='" + TextBox2.Text.Trim() + "'", con);
-                SqlDataReader dr = cmd.ExecuteReader();
-
-                if (dr.HasRows)
-                {
-                    while (dr.Read())
+                    SqlConnection con = new SqlConnection(strcon);
+                    if (con.State == ConnectionState.Closed)
                     {
-                        //Response.Write("<script>alert('" + dr.GetValue(2).ToString() + "');</script>");
-                        Session["username"] = dr.GetValue(0).ToString();
-                        Session["fullname"] = dr.GetValue(2).ToString();
-                        Session["role"] = "admin";
+                        con.Open();
                     }
-                    Response.Redirect("homepage.aspx");
-                }
-                else
-                {
-                    Response.Write("<script>alert('Invalid credentials');</script>");
-                    
-                    
-                }
+                    SqlCommand cmd = new SqlCommand("select * from admin_login_tbl where username='" + TextBox1.Text.Trim() + "' and password='" + TextBox2.Text.Trim() + "'", con);
+                    SqlDataReader dr = cmd.ExecuteReader();
 
-            }
-            catch (Exception ex)
-            {
-                Response.Write("<script>alert('"+ex.Message+"');</script>");
+                    if (dr.HasRows)
+                    {
+                        while (dr.Read())
+                        {
+                            //Response.Write("<script>alert('" + dr.GetValue(2).ToString() + "');</script>");
+                            Session["username"] = dr.GetValue(0).ToString();
+                            Session["fullname"] = dr.GetValue(2).ToString();
+                            Session["role"] = "admin";
+                        }
+                        Response.Redirect("homepage.aspx");
+                    }
+                    else
+                    {
+                        Response.Write("<script>alert('Invalid credentials');</script>");
+
+
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Response.Write("<script>alert('" + ex.Message + "');</script>");
+                }
             }
         }
     }

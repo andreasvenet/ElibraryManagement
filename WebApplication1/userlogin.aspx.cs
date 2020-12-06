@@ -20,39 +20,43 @@ namespace WebApplication1
 
         protected void Button1_Click(object sender, EventArgs e)
         {
-            try
+            if (Page.IsValid)
             {
-                SqlConnection con = new SqlConnection(strcon);
-                if (con.State == ConnectionState.Closed)
+                try
                 {
-                    con.Open();
-                }
-                SqlCommand cmd = new SqlCommand("select * from member_master_tbl where member_id='"+TextBox1.Text.Trim()+"' and password='"+TextBox2.Text.Trim()+"'", con);
-                SqlDataReader dr = cmd.ExecuteReader();
-
-                if (dr.HasRows)
-                {
-                    while (dr.Read())
+                    SqlConnection con = new SqlConnection(strcon);
+                    if (con.State == ConnectionState.Closed)
                     {
-                        Response.Write("<script>alert('Login Successful!');</script>");
-                        Session["username"] = dr.GetValue(0).ToString();
-                        Session["fullname"] = dr.GetValue(1).ToString();
-                        Session["role"] = "user";
-                        Session["status"] = dr.GetValue(10).ToString();
+                        con.Open();
                     }
-                    Response.Redirect("homepage.aspx");
+                    SqlCommand cmd = new SqlCommand("select * from member_master_tbl where member_id='" + TextBox1.Text.Trim() + "' and password='" + TextBox2.Text.Trim() + "'", con);
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.HasRows)
+                    {
+                        while (dr.Read())
+                        {
+                            Response.Write("<script>alert('Login Successful!');</script>");
+                            Session["username"] = dr.GetValue(0).ToString();
+                            Session["fullname"] = dr.GetValue(1).ToString();
+                            Session["role"] = "user";
+                            Session["status"] = dr.GetValue(10).ToString();
+                        }
+                        Response.Redirect("homepage.aspx");
+                    }
+                    else
+                    {
+                        Response.Write("<script>alert('Invalid credentials');</script>");
+                        
+                    }
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    Response.Write("<script>alert('Invalid credentials');</script>");
+                    Response.Write("<script>alert('" + ex.Message + "');</script>");
                 }
-          
+                //Response.Write("<script>alert('Button Click');</script>");
             }
-            catch(Exception ex)
-            {
-                Response.Write("<script>alert('"+ex.Message+"');</script>");
-            }
-            //Response.Write("<script>alert('Button Click');</script>");
         }
     }
 }

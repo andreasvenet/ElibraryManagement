@@ -43,17 +43,18 @@
                                 <label>Admin ID</label>
                                 <div class="form-group">
                                     <asp:TextBox class="form-control" ID="TextBox1" runat="server" placeholder="Member ID"></asp:TextBox>
-
+                                    <asp:RequiredFieldValidator class="text-danger" ID="RequiredFieldValidator1" runat="server" ErrorMessage="Member ID required!" ControlToValidate="TextBox1" ValidationGroup="LoginGroup" Display="Dynamic"></asp:RequiredFieldValidator>
                                 </div>
 
                                 <label>Password</label>
                                 <div class="form-group">
                                     <asp:TextBox class="form-control" ID="TextBox2" runat="server" placeholder="Password" TextMode="Password"></asp:TextBox>
+                                    <asp:RequiredFieldValidator class="text-danger" ID="RequiredFieldValidator2" runat="server" ErrorMessage="Password required!" ControlToValidate="TextBox2" ValidationGroup="LoginGroup" Display="Dynamic"></asp:RequiredFieldValidator>
 
                                 </div>
 
                                 <div class="form-group">
-                                    <asp:Button class="btn btn-success btn-block btn-lg" ID="Button1" runat="server" Text="Login" OnClick="Button1_Click" />    
+                                    <asp:Button class="btn btn-success btn-block btn-lg" ID="Button1" runat="server" Text="Login" OnClick="Button1_Click" ValidationGroup="LoginGroup" />    
 
                                 </div>
 
