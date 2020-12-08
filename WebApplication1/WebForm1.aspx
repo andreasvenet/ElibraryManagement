@@ -7,8 +7,13 @@
     
         Your name:<br />
         <asp:TextBox runat="server" id="txtName" />
-    <asp:CustomValidator ID="CustomValidator1" runat="server" ErrorMessage="CustomValidator" OnServerValidate="CustomValidator1_ServerValidate"></asp:CustomValidator>
+    <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ErrorMessage="RequiredFieldValidator" ControlToValidate="txtName" ValidationGroup="group"></asp:RequiredFieldValidator>
         <br /><br />
-        <asp:Button runat="server" id="btnSubmitForm" text="Ok" OnClick="btnSubmitForm_Click" />
+    <div class="form-group">
+                                    <asp:TextBox class="form-control" ID="TextBox6" runat="server" placeholder="Due Date" TextMode="Date" ValidationGroup="group"></asp:TextBox>
+        <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server" ErrorMessage="RequiredFieldValidator" ValidationGroup="group" ControlToValidate="TextBox6"></asp:RequiredFieldValidator>
+                            
+                                </div>
+        <asp:Button runat="server" id="btnSubmitForm" text="Ok" OnClick="btnSubmitForm_Click" ValidationGroup="group" />
     
 </asp:Content>

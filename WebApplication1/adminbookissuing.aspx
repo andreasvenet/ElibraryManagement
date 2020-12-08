@@ -65,6 +65,7 @@
                                  <label>Member Name</label>
                                 <div class="form-group">
                                     <asp:TextBox class="form-control" ID="TextBox1" runat="server" placeholder="Member Name" ReadOnly="true"></asp:TextBox>
+                                    <asp:RequiredFieldValidator class="text-danger" ID="RequiredFieldValidator3" runat="server" ErrorMessage="Member Name Required!" ControlToValidate="TextBox1" ValidationGroup="group"></asp:RequiredFieldValidator>
                                 </div>
                             </div>
 
@@ -72,6 +73,7 @@
                                  <label>Book Name</label>
                                 <div class="form-group">
                                     <asp:TextBox class="form-control" ID="TextBox2" runat="server" placeholder="Book Name" ReadOnly="true"></asp:TextBox>
+                                    <asp:RequiredFieldValidator class="text-danger" ID="RequiredFieldValidator4" runat="server" ErrorMessage="Book Name Required!" ControlToValidate="TextBox2" ValidationGroup="group"></asp:RequiredFieldValidator>
                                 </div>
                             </div>
                              
@@ -84,6 +86,7 @@
                                  <label>Issue Date</label>
                                 <div class="form-group">
                                     <asp:TextBox class="form-control" ID="TextBox5" runat="server" placeholder="Issue Date" TextMode="Date"></asp:TextBox>
+                                    <asp:RequiredFieldValidator class="text-danger" ID="RequiredFieldValidator1" runat="server" ErrorMessage="Date Required!" ControlToValidate="TextBox5" ValidationGroup="group"></asp:RequiredFieldValidator>
                                 </div>
                             </div>
 
@@ -91,6 +94,7 @@
                                  <label>Due Date</label>
                                 <div class="form-group">
                                     <asp:TextBox class="form-control" ID="TextBox6" runat="server" placeholder="Due Date" TextMode="Date"></asp:TextBox>
+                                    <asp:RequiredFieldValidator class="text-danger" ID="RequiredFieldValidator2" runat="server" ErrorMessage="Date Required!" ControlToValidate="TextBox6" ValidationGroup="group"></asp:RequiredFieldValidator>
                                 </div>
                             </div>
                              
@@ -98,12 +102,12 @@
 
                         <div class="row">
                             <div class="col-6">
-                            <asp:Button class="btn btn-lg btn-block btn-primary" ID="Button2" runat="server" Text="Issue" OnClick="Button2_Click" />     
+                            <asp:Button class="btn btn-lg btn-block btn-primary" ID="Button2" runat="server" Text="Issue" OnClick="Button2_Click" ValidationGroup="group" />     
                           
                             </div>
 
                             <div class="col-6">
-                                <asp:Button class="btn btn-lg btn-block btn-success" ID="Button3" runat="server" Text="Return" OnClick="Button3_Click" />   
+                                <asp:Button class="btn btn-lg btn-block btn-success" ID="Button3" runat="server" Text="Return" OnClick="Button3_Click"/>   
                             </div>
                         </div>
                     </div>

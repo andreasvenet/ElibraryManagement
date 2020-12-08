@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -29,7 +30,16 @@ namespace WebApplication1
                     {
                         con.Open();
                     }
-                    SqlCommand cmd = new SqlCommand("select * from member_master_tbl where member_id='" + TextBox1.Text.Trim() + "' and password='" + TextBox2.Text.Trim() + "'", con);
+                    SqlCommand cmd = new SqlCommand("select * from member_master_tbl where member_id='" + TextBox1.Text.Trim() + "'", con);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    string salt = dt.Rows[0]["salt"].ToString();
+                    string pwd = TextBox2.Text.Trim() + salt;
+                    pwd = ComputeHash(pwd);
+
+                    cmd = new SqlCommand("select * from member_master_tbl where member_id='" + TextBox1.Text.Trim() + "' and password='" + pwd + "'", con);
                     SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.HasRows)
@@ -57,6 +67,18 @@ namespace WebApplication1
                 }
                 //Response.Write("<script>alert('Button Click');</script>");
             }
+        }
+        
+
+        string ComputeHash(string pwd)
+        {
+            HashAlgorithm alg = new SHA256CryptoServiceProvider();
+            byte[] byteValue = System.Text.Encoding.UTF8.GetBytes(pwd);
+            byte[] byteHash = alg.ComputeHash(byteValue);
+            pwd = Convert.ToBase64String(byteHash);
+
+            return pwd;
+
         }
     }
 }

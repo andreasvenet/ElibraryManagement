@@ -103,39 +103,42 @@ namespace WebApplication1
 
         void IssueBook()
         {
-            try
+            if (Page.IsValid)
             {
-                SqlConnection con = new SqlConnection(strcon);
-                if (con.State == System.Data.ConnectionState.Closed)
+                try
                 {
-                    con.Open();
-                }
-                SqlCommand cmd = new SqlCommand(@"insert into book_issue_tbl 
+                    SqlConnection con = new SqlConnection(strcon);
+                    if (con.State == System.Data.ConnectionState.Closed)
+                    {
+                        con.Open();
+                    }
+                    SqlCommand cmd = new SqlCommand(@"insert into book_issue_tbl 
                     (member_id,member_name,book_id,book_name,issue_date,due_date) 
                     values
                     (@member_id,@member_name,@book_id,@book_name,@issue_date,@due_date)", con);
 
-                cmd.Parameters.AddWithValue("@member_id", TextBox4.Text.Trim());
-                cmd.Parameters.AddWithValue("@member_name", TextBox1.Text.Trim());
-                cmd.Parameters.AddWithValue("@book_id", TextBox3.Text.Trim());
-                cmd.Parameters.AddWithValue("@book_name", TextBox2.Text.Trim());
-                cmd.Parameters.AddWithValue("@issue_date", TextBox5.Text.Trim());
-                cmd.Parameters.AddWithValue("@due_date", TextBox6.Text.Trim());
-                
+                    cmd.Parameters.AddWithValue("@member_id", TextBox4.Text.Trim());
+                    cmd.Parameters.AddWithValue("@member_name", TextBox1.Text.Trim());
+                    cmd.Parameters.AddWithValue("@book_id", TextBox3.Text.Trim());
+                    cmd.Parameters.AddWithValue("@book_name", TextBox2.Text.Trim());
+                    cmd.Parameters.AddWithValue("@issue_date", TextBox5.Text.Trim());
+                    cmd.Parameters.AddWithValue("@due_date", TextBox6.Text.Trim());
 
-                cmd.ExecuteNonQuery();
 
-                cmd = new SqlCommand("update book_master_tbl set current_stock=current_stock-1 where book_id='"+TextBox3.Text.Trim()+"'", con);
-                cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
 
-                con.Close();
-                Response.Write("<script>alert('Book Issued successfully!');</script>");
-                
-                GridView1.DataBind();
-            }
-            catch (Exception ex)
-            {
-                Response.Write("<script>alert('" + ex.Message + "');</script>");
+                    cmd = new SqlCommand("update book_master_tbl set current_stock=current_stock-1 where book_id='" + TextBox3.Text.Trim() + "'", con);
+                    cmd.ExecuteNonQuery();
+
+                    con.Close();
+                    Response.Write("<script>alert('Book Issued successfully!');</script>");
+
+                    GridView1.DataBind();
+                }
+                catch (Exception ex)
+                {
+                    Response.Write("<script>alert('" + ex.Message + "');</script>");
+                }
             }
         }
 

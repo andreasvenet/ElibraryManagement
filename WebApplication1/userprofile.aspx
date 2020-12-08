@@ -117,6 +117,19 @@
 
                         </div>
 
+
+                        
+
+                        <div class="row">
+                            <div class="col-8 mx-auto">
+                                <center>
+                                <div class="form-group">
+                                    <asp:Button class="btn btn-primary btn-block btn-lg" ID="Button1" runat="server" Text="Update" OnClick="Button1_Click" />     
+                                </div>
+                                </center>
+                            </div>
+                        </div>
+                        
                         <div class="row">
                             
                             <div class="col">
@@ -124,36 +137,38 @@
                             </div>
                             
                         </div>
-
                         <div class="row">
-                            <div class="col-md-4">
-                                 <label>User ID</label>
-                                <div class="form-group">
-                                    <asp:TextBox class="form-control" ID="TextBox1" runat="server" placeholder="User ID" ReadOnly="true"></asp:TextBox>
-                                </div>
-                            </div>
-
                             <div class="col-md-4">
                                  <label>Old Password</label>
                                 <div class="form-group">
-                                    <asp:TextBox class="form-control" ID="TextBox9" runat="server" placeholder="Old Password" TextMode="Password" ReadOnly="true"></asp:TextBox>
+                                    <asp:TextBox class="form-control" ID="TextBox1" runat="server" placeholder="Old Password" TextMode="Password"></asp:TextBox>
+                                    <asp:RequiredFieldValidator class="text-danger" ID="RequiredFieldValidator2" runat="server" ErrorMessage="Please enter your old password!" ControlToValidate="TextBox1" ValidationGroup="pwdGroup"></asp:RequiredFieldValidator>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                  <label>New Password</label>
                                 <div class="form-group">
+                                    <asp:TextBox class="form-control" ID="TextBox9" runat="server" placeholder="New Password" TextMode="Password"></asp:TextBox>
+                                    <asp:RequiredFieldValidator class="text-danger" ID="RequiredFieldValidator1" runat="server" ErrorMessage="Please enter a Password!" ControlToValidate="TextBox9" ValidationGroup="pwdGroup" Display="Dynamic"></asp:RequiredFieldValidator>
+                                    <asp:RegularExpressionValidator class="text-danger" ID="RegularExpressionValidator1" runat="server" ErrorMessage="Password must be at least 8 characters long and have a number" validationexpression="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" ControlToValidate="TextBox9" ValidationGroup="pwdGroup" Display="Dynamic"></asp:RegularExpressionValidator>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                 <label>Retype New Password</label>
+                                <div class="form-group">
                                     <asp:TextBox class="form-control" ID="TextBox10" runat="server" placeholder="New Password" TextMode="Password"></asp:TextBox>
+                                    <asp:CompareValidator class="text-danger" ID="CompareValidator1" runat="server" ErrorMessage="Password mismatch, Try again!" ControlToValidate="TextBox9" ControlToCompare="TextBox10" ValidationGroup="pwdGroup"></asp:CompareValidator>
                                 </div>
                             </div>
 
                         </div>
-
                         <div class="row">
                             <div class="col-8 mx-auto">
                                 <center>
                                 <div class="form-group">
-                                    <asp:Button class="btn btn-primary btn-block btn-lg" ID="Button1" runat="server" Text="Update" OnClick="Button1_Click" />     
+                                    <asp:Button class="btn btn-warning btn-block btn-lg" ID="Button2" runat="server" Text="Update Password" OnClick="Button2_Click" ValidationGroup="pwdGroup" />     
                                 </div>
                                 </center>
                             </div>

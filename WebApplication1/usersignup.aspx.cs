@@ -7,6 +7,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Security.Cryptography;
 
 namespace WebApplication1
 {
@@ -15,6 +16,7 @@ namespace WebApplication1
         string strcon = ConfigurationManager.ConnectionStrings["con"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
+            
             
         }
 
@@ -73,6 +75,10 @@ namespace WebApplication1
         void SignUpNewUser()
         {
             //Response.Write("<script>alert('Testing');</script>");
+            string pwd = TextBox9.Text.Trim();
+            string salt = CreateSalt(pwd.Length);
+            pwd += salt;
+            pwd = ComputeHash(pwd);
             try
             {
                 SqlConnection con = new SqlConnection(strcon);
@@ -81,9 +87,9 @@ namespace WebApplication1
                     con.Open();
                 }
                 SqlCommand cmd = new SqlCommand(@"insert into member_master_tbl 
-                    (full_name,dob,contact_no,email,state,city,pincode,full_address,member_id,password,account_status) 
+                    (full_name,dob,contact_no,email,state,city,pincode,full_address,member_id,password,account_status,salt) 
                     values
-                    (@full_name,@dob,@contact_no,@email,@state,@city,@pincode,@full_address,@member_id,@password,@account_status)", con);
+                    (@full_name,@dob,@contact_no,@email,@state,@city,@pincode,@full_address,@member_id,@password,@account_status,@salt)", con);
 
                 cmd.Parameters.AddWithValue("@full_name", TextBox3.Text.Trim());
                 cmd.Parameters.AddWithValue("@dob", TextBox4.Text.Trim());
@@ -94,7 +100,8 @@ namespace WebApplication1
                 cmd.Parameters.AddWithValue("@pincode", TextBox7.Text.Trim());
                 cmd.Parameters.AddWithValue("@full_address", TextBox8.Text.Trim());
                 cmd.Parameters.AddWithValue("@member_id", TextBox1.Text.Trim());
-                cmd.Parameters.AddWithValue("@password", TextBox9.Text.Trim());
+                cmd.Parameters.AddWithValue("@salt", salt);
+                cmd.Parameters.AddWithValue("@password", pwd);
                 cmd.Parameters.AddWithValue("@account_status", "pending");
 
                 cmd.ExecuteNonQuery();
@@ -106,6 +113,26 @@ namespace WebApplication1
             {
                 Response.Write("<script>alert('" + ex.Message + "');</script>");
             }
+
+        }
+
+        //salt method
+        string CreateSalt(int size)
+        {
+            RNGCryptoServiceProvider rand = new RNGCryptoServiceProvider();
+            byte[] buff = new byte[size];
+            rand.GetBytes(buff);
+            return Convert.ToBase64String(buff);
+        }
+        // hash method
+        string ComputeHash(string pwd)
+        {
+            HashAlgorithm alg = new SHA256CryptoServiceProvider();
+            byte[] byteValue = System.Text.Encoding.UTF8.GetBytes(pwd);
+            byte[] byteHash = alg.ComputeHash(byteValue);
+            pwd = Convert.ToBase64String(byteHash);
+
+            return pwd;
 
         }
 

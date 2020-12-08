@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-
+using System.Security.Cryptography;
 
 namespace WebApplication1
 {
@@ -17,26 +17,33 @@ namespace WebApplication1
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            try
+            if (Session["username"] == null)
             {
-                if (Session["username"].ToString() == "" || Session["username"] == null)
+                Response.Redirect("userlogin.aspx");
+            }
+            else
+            {
+                try
+                {
+                    if (Session["username"].ToString() == "" || Session["username"] == null)
+                    {
+                        Response.Write("<script>alert('Session Expired. Please Login Again.');</script>");
+                        Response.Redirect("userlogin.aspx");
+                    }
+                    else
+                    {
+                        GetUserBookData();
+                        if (!Page.IsPostBack)
+                        {
+                            GetUserByID();
+                        }
+                    }
+                }
+                catch (Exception ex)
                 {
                     Response.Write("<script>alert('Session Expired. Please Login Again.');</script>");
                     Response.Redirect("userlogin.aspx");
                 }
-                else
-                {
-                    GetUserBookData();
-                    if (!Page.IsPostBack)
-                    {
-                        GetUserByID();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Response.Write("<script>alert('Session Expired. Please Login Again.');</script>");
-                Response.Redirect("userlogin.aspx");
             }
         }
         //gridview event
@@ -61,7 +68,7 @@ namespace WebApplication1
                 throw;
             }
         }
-        //update button
+        //update Credentials button
         protected void Button1_Click(object sender, EventArgs e)
         {
             try
@@ -74,8 +81,39 @@ namespace WebApplication1
                 else
                 {
                    
-                    UpdateUserByID();
+                    UpdateCredentialsByID();
                     
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.Write("<script>alert('Session Expired. Please Login Again.');</script>");
+                Response.Redirect("userlogin.aspx");
+            }
+        }
+        //update password button
+
+        protected void Button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (Session["username"].ToString() == "" || Session["username"] == null)
+                {
+                    Response.Write("<script>alert('Session Expired. Please Login Again.');</script>");
+                    Response.Redirect("userlogin.aspx");
+                }
+                else
+                {
+                    if (ValidateOldPassword())
+                    {
+                        UpdatePasswordByID();
+                    }
+                    else
+                    {
+                        Response.Write("<script>alert('Invalid Password, Try again!');</script>");
+                    }
+                    
+
                 }
             }
             catch (Exception ex)
@@ -87,18 +125,52 @@ namespace WebApplication1
 
         //user defined methods
 
-        void UpdateUserByID()
+        bool ValidateOldPassword()
         {
-            string password = "";
-            if (TextBox10.Text.Trim() == "")
-            {
-                password = TextBox9.Text.Trim();
-            }
-            else
-            {
-                password = TextBox10.Text.Trim();
-            }
 
+            if (Page.IsValid)
+            {
+                try
+                {
+                    SqlConnection con = new SqlConnection(strcon);
+                    if (con.State == ConnectionState.Closed)
+                    {
+                        con.Open();
+                    }
+                    SqlCommand cmd = new SqlCommand("select * from member_master_tbl where member_id='" + Session["username"] + "'", con);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    string salt = dt.Rows[0]["salt"].ToString();
+                    string pwd = TextBox1.Text.Trim() + salt;
+                    pwd = ComputeHash(pwd);
+
+                    cmd = new SqlCommand("select * from member_master_tbl where member_id='" + Session["Username"] + "' and password='" + pwd + "'", con);
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.HasRows)
+                    {
+                        
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Response.Write("<script>alert('" + ex.Message + "');</script>");
+                }
+                //Response.Write("<script>alert('Button Click');</script>");
+            }
+            return false;
+        }
+
+        void UpdateCredentialsByID()
+        {
             try
             {
                 SqlConnection con = new SqlConnection(strcon);
@@ -110,7 +182,7 @@ namespace WebApplication1
                 SqlCommand cmd = new SqlCommand(@"update member_master_tbl set
                                  full_name=@full_name, dob=@dob, contact_no=@contact_no,
                                  email=@email, state=@state, city=@city, pincode=@pincode,
-                                 full_address=@full_address, password=@password, account_status=@account_status
+                                 full_address=@full_address, account_status=@account_status
                                  where member_id='" + Session["username"].ToString().Trim() + "'", con);
 
                 cmd.Parameters.AddWithValue("@full_name",TextBox3.Text.Trim());
@@ -121,7 +193,7 @@ namespace WebApplication1
                 cmd.Parameters.AddWithValue("@city", TextBox2.Text.Trim());
                 cmd.Parameters.AddWithValue("@pincode", TextBox7.Text.Trim());
                 cmd.Parameters.AddWithValue("@full_address", TextBox8.Text.Trim());
-                cmd.Parameters.AddWithValue("@password", password);
+                
                 cmd.Parameters.AddWithValue("@account_status", "pending");
 
                 int result = cmd.ExecuteNonQuery();
@@ -142,6 +214,52 @@ namespace WebApplication1
             {
                 Response.Write("<script>alert('" + ex.Message + "');</script>");
             }
+        }
+
+        void UpdatePasswordByID()
+        {
+            if (Page.IsValid)
+            {
+                try
+                {
+                    string pwd = TextBox9.Text.Trim();
+                    string salt = CreateSalt(pwd.Length);
+                    pwd += salt;
+                    pwd = ComputeHash(pwd);
+                    SqlConnection con = new SqlConnection(strcon);
+                    if (con.State == ConnectionState.Closed)
+                    {
+                        con.Open();
+                    }
+
+                    SqlCommand cmd = new SqlCommand(@"update member_master_tbl set
+                                 password=@password, salt=@salt
+                                 where member_id='" + Session["username"].ToString().Trim() + "'", con);
+
+                    cmd.Parameters.AddWithValue("@password", pwd);
+                    cmd.Parameters.AddWithValue("@salt", salt);
+                    cmd.Parameters.AddWithValue("@account_status", "pending");
+
+                    int result = cmd.ExecuteNonQuery();
+                    con.Close();
+                    if (result > 0)
+                    {
+                        Response.Write("<script>alert('Password Updated Successfully!');</script>");
+                        GetUserByID();
+                        GetUserBookData();
+                    }
+                    else
+                    {
+                        Response.Write("<script>alert('Invalid Entry!');</script>");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Response.Write("<script>alert('" + ex.Message + "');</script>");
+                }
+            }
+
         }
 
         void GetUserByID()
@@ -167,7 +285,7 @@ namespace WebApplication1
                 TextBox7.Text = dt.Rows[0]["pincode"].ToString();
                 TextBox8.Text = dt.Rows[0]["full_address"].ToString();
                 TextBox1.Text = dt.Rows[0]["member_id"].ToString();
-                TextBox9.Text = dt.Rows[0]["password"].ToString();
+                
 
                 Label1.Text = dt.Rows[0]["account_status"].ToString().Trim();
 
@@ -223,8 +341,26 @@ namespace WebApplication1
             }
         }
 
-        
 
-        
+        //salt method
+        string CreateSalt(int size)
+        {
+            RNGCryptoServiceProvider rand = new RNGCryptoServiceProvider();
+            byte[] buff = new byte[size];
+            rand.GetBytes(buff);
+            return Convert.ToBase64String(buff);
+        }
+        // hash method
+        string ComputeHash(string pwd)
+        {
+            HashAlgorithm alg = new SHA256CryptoServiceProvider();
+            byte[] byteValue = System.Text.Encoding.UTF8.GetBytes(pwd);
+            byte[] byteHash = alg.ComputeHash(byteValue);
+            pwd = Convert.ToBase64String(byteHash);
+
+            return pwd;
+
+        }
+
     }
 }
