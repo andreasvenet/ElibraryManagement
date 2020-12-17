@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Security.Cryptography;
+using System.Net.Mail;
 
 namespace WebApplication1
 {
@@ -32,6 +33,7 @@ namespace WebApplication1
                 else
                 {
                     SignUpNewUser();
+                    SendMail();
                 }
             }
         }
@@ -134,6 +136,30 @@ namespace WebApplication1
 
             return pwd;
 
+        }
+
+        //mail method
+        void SendMail()
+        {
+            MailMessage msg = new MailMessage("fromMail", TextBox6.Text.Trim());
+
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+            client.EnableSsl = true;
+            client.Credentials = new System.Net.NetworkCredential("siteMail", "password");
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+            msg.Subject = "eLibraryManagement";
+            msg.Body = "Account created Successfully!";
+            try
+            {
+                client.Send(msg);
+            }
+            catch (Exception ex)
+            {
+
+                Response.Write("<script>alert('" + ex.Message +"')</script>");
+            }
+            
         }
 
     }

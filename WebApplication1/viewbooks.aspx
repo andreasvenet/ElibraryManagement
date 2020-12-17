@@ -20,7 +20,7 @@
                         <div class="row">
                             <div class="col">
                                 <center>
-                                    <h4>Book Inventory List</h4>
+                                    <h4>View Books</h4>
                                 </center>
                             </div>
                         </div>
@@ -32,8 +32,8 @@
                         </div>
 
                         <div class="row">
-                            <div class="card">
-                    <div class="card-body">
+                            
+                    
                         <div class="row">
                             <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:elibraryDBConnectionString %>" SelectCommand="SELECT * FROM [book_master_tbl]"></asp:SqlDataSource>
                             <div class="col">
@@ -114,8 +114,8 @@
                             </div>
                         </div>
                         
-                    </div>
-                </div>
+                    
+                
                         </div>
                         
                     </div>
