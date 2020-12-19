@@ -7,6 +7,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net.Mail;
 
 namespace WebApplication1
 {
@@ -36,6 +37,9 @@ namespace WebApplication1
                 else
                 {
                     IssueBook();
+                    Response.Write("<script>alert('Book Issued Successfully!');</script>");
+                    SendMail("You have been issued with the book titled: " + TextBox2.Text.Trim());
+
                 }
                 
             }
@@ -54,6 +58,8 @@ namespace WebApplication1
                 if (CheckIfIssueEntryExists())
                 {
                     ReturnBook();
+                    Response.Write("<script>alert('Book Returned Successfully!');</script>");
+                    SendMail("The book titled :" + TextBox2.Text.Trim() + " was returned successfully!");
                 }
                 else
                 {
@@ -299,6 +305,61 @@ namespace WebApplication1
                 Response.Write("<script>alert('"+ex.Message+"');</script>");
                 throw;
             }
+        }
+
+        string GetMail()
+        {
+            string mail = "";
+            try
+            {
+                SqlConnection con = new SqlConnection(strcon);
+                if (con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+
+                SqlCommand cmd = new SqlCommand("select email from member_master_tbl where member_id='" + TextBox4.Text.Trim() + "'", con);
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                if (dt.Rows.Count >= 1)
+                {
+                    mail = dt.Rows[0]["full_name"].ToString();
+                }
+                else
+                {
+                    Response.Write("<script>alert('Invalid Member ID!');</script>");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return mail;
+        }
+
+        void SendMail(string messageBody)
+        {
+            MailMessage msg = new MailMessage("fromMail", GetMail());
+
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+            client.EnableSsl = true;
+            client.Credentials = new System.Net.NetworkCredential("siteMail", "password");
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+            msg.Subject = "eLibraryManagement";
+            msg.Body = messageBody;
+            try
+            {
+                client.Send(msg);
+            }
+            catch (Exception ex)
+            {
+
+                Response.Write("<script>alert('" + ex.Message + "')</script>");
+            }
+
         }
     }
 }

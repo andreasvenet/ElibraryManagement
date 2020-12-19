@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
+using System.Net.Mail;
 
 namespace WebApplication1
 {
@@ -80,9 +81,8 @@ namespace WebApplication1
                 }
                 else
                 {
-                   
                     UpdateCredentialsByID();
-                    
+                    SendMail("Credentials updated successfully!");
                 }
             }
             catch (Exception ex)
@@ -91,8 +91,8 @@ namespace WebApplication1
                 Response.Redirect("userlogin.aspx");
             }
         }
-        //update password button
 
+        //update password button
         protected void Button2_Click(object sender, EventArgs e)
         {
             try
@@ -107,6 +107,7 @@ namespace WebApplication1
                     if (ValidateOldPassword())
                     {
                         UpdatePasswordByID();
+                        SendMail("Password updated successfully!");
                     }
                     else
                     {
@@ -359,6 +360,29 @@ namespace WebApplication1
             pwd = Convert.ToBase64String(byteHash);
 
             return pwd;
+
+        }
+
+        void SendMail(string messageBody)
+        {
+            MailMessage msg = new MailMessage("fromMail", TextBox6.Text.Trim());
+
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+            client.EnableSsl = true;
+            client.Credentials = new System.Net.NetworkCredential("siteMail", "password");
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+            msg.Subject = "eLibraryManagement";
+            msg.Body = messageBody;
+            try
+            {
+                client.Send(msg);
+            }
+            catch (Exception ex)
+            {
+
+                Response.Write("<script>alert('" + ex.Message + "')</script>");
+            }
 
         }
 
